@@ -1,0 +1,81 @@
+import type { Category } from '../types';
+
+export const CATEGORIES: Category[] = [
+  {
+    id: 'food',
+    label: 'Food & Dining',
+    icon: 'restaurant-outline',
+    color: '#F59E0B',
+    type: 'expense',
+  },
+  {
+    id: 'transport',
+    label: 'Transport',
+    icon: 'car-outline',
+    color: '#6C63FF',
+    type: 'expense',
+  },
+  {
+    id: 'shopping',
+    label: 'Shopping',
+    icon: 'bag-outline',
+    color: '#EC4899',
+    type: 'expense',
+  },
+  {
+    id: 'health',
+    label: 'Health',
+    icon: 'medkit-outline',
+    color: '#22C55E',
+    type: 'expense',
+  },
+  {
+    id: 'bills',
+    label: 'Bills & Utilities',
+    icon: 'flash-outline',
+    color: '#EF4444',
+    type: 'expense',
+  },
+  {
+    id: 'education',
+    label: 'Education',
+    icon: 'school-outline',
+    color: '#3B82F6',
+    type: 'expense',
+  },
+  {
+    id: 'entertainment',
+    label: 'Entertainment',
+    icon: 'game-controller-outline',
+    color: '#A855F7',
+    type: 'expense',
+  },
+  {
+    id: 'salary',
+    label: 'Salary',
+    icon: 'briefcase-outline',
+    color: '#22C55E',
+    type: 'income',
+  },
+  {
+    id: 'freelance',
+    label: 'Freelance',
+    icon: 'laptop-outline',
+    color: '#6C63FF',
+    type: 'income',
+  },
+  {
+    id: 'investment',
+    label: 'Investment',
+    icon: 'trending-up-outline',
+    color: '#F59E0B',
+    type: 'income',
+  },
+  {
+    id: 'other',
+    label: 'Other',
+    icon: 'ellipsis-horizontal-outline',
+    color: '#9090A8',
+    type: 'both',
+  },
+];

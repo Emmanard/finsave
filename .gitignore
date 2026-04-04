@@ -39,3 +39,8 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+# Cursor / AI Files
+.cursorrules
+.cursor/
+*.plan.md
+IMPLEMENTATION_PLAN.md
