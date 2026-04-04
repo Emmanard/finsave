@@ -52,8 +52,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   button: {
-    alignSelf: 'stretch',
-    maxWidth: 320,
-    width: '100%',
+    alignSelf: 'center',
+    minWidth: 220,
+    maxWidth: 280,
+    paddingHorizontal: spacing.lg,
   },
 });

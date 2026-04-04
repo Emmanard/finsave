@@ -1,13 +1,7 @@
 import { format } from 'date-fns';
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { GoalProgressMini, GoalPromptCard } from '../../src/components/dashboard/GoalProgressMini';
@@ -16,7 +10,6 @@ import { SummaryCard } from '../../src/components/dashboard/SummaryCard';
 import { TransactionItem } from '../../src/components/transactions/TransactionItem';
 import { useGoalStore } from '../../src/stores/goalStore';
 import { useProfileStore } from '../../src/stores/profileStore';
-import { useTransactionStore } from '../../src/stores/transactionStore';
 import { colors } from '../../src/theme/colors';
 import { spacing, TAB_BAR_HEIGHT } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -24,27 +17,24 @@ import { useGoals } from '../../src/hooks/useGoals';
 import { useTransactions } from '../../src/hooks/useTransactions';
 import { formatCurrency } from '../../src/utils/formatCurrency';
 
-function greetingForHour(h: number): string {
+function periodForHour(h: number): string {
   if (h < 12) {
-    return 'Good morning';
+    return 'morning';
   }
   if (h < 17) {
-    return 'Good afternoon';
+    return 'afternoon';
   }
-  return 'Good evening';
+  return 'evening';
 }
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const displayName = useProfileStore((s) => s.displayName);
   const goals = useGoalStore((s) => s.goals);
-  const txLoading = useTransactionStore((s) => s.isLoading);
-  const txError = useTransactionStore((s) => s.error);
   const { currentMonthGoal, goalProgress } = useGoals();
   const { totalIncome, totalExpenses, balance, byCategory, recentFive } = useTransactions();
 
   const monthKey = format(new Date(), 'yyyy-MM');
-  const monthLabel = format(new Date(), 'MMMM yyyy');
 
   const expenseByCat = useMemo(
     () =>
@@ -60,8 +50,8 @@ export default function HomeScreen() {
   const goal = currentMonthGoal(goals);
   const progress = goal ? goalProgress(goal) : null;
 
-  const greeting = greetingForHour(new Date().getHours());
-  const namePart = displayName === 'You' ? 'You' : displayName;
+  const hour = new Date().getHours();
+  const period = periodForHour(hour);
 
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
@@ -70,7 +60,7 @@ export default function HomeScreen() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
           paddingHorizontal: spacing.md,
-          paddingBottom: TAB_BAR_HEIGHT + insets.bottom,
+          paddingBottom: TAB_BAR_HEIGHT + insets.bottom + spacing.xl,
         }}
       >
         <View style={styles.headerRow}>
@@ -79,20 +69,16 @@ export default function HomeScreen() {
             <Text style={styles.logoSave}>save</Text>
           </Text>
           <Text style={[typography.body, styles.greeting]} numberOfLines={2}>
-            {greeting}, {namePart} 👋{'\n'}
-            <Text style={styles.subMuted}>{monthLabel}</Text>
+            Good {period}, {displayName} 👋{'\n'}
+            <Text style={styles.monthLine}>{format(new Date(), 'MMMM yyyy')}</Text>
           </Text>
         </View>
-
-        {txError ? (
-          <Text style={styles.inlineError}>{txError}</Text>
-        ) : null}
 
         <View style={styles.row3}>
           <SummaryCard
             label="Balance"
             amount={formatCurrency(balance(monthKey))}
-            amountColor={colors.white}
+            amountColor={colors.text}
           />
           <SummaryCard
             label="Income"
@@ -130,10 +116,6 @@ export default function HomeScreen() {
             ))}
           </View>
         </View>
-
-        {txLoading ? (
-          <Text style={styles.mutedSmall}>Refreshing…</Text>
-        ) : null}
       </ScrollView>
 
       <Pressable
@@ -160,7 +142,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    gap: spacing.md,
     marginBottom: spacing.lg,
   },
   logo: {
@@ -173,7 +154,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   logoSave: {
-    color: colors.white,
+    color: colors.text,
     fontSize: 24,
     fontWeight: '700',
   },
@@ -182,7 +163,7 @@ const styles = StyleSheet.create({
     color: colors.text,
     textAlign: 'right',
   },
-  subMuted: {
+  monthLine: {
     color: colors.textMuted,
     ...typography.small,
   },
@@ -213,14 +194,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 4,
-  },
-  inlineError: {
-    ...typography.small,
-    color: colors.danger,
-    marginBottom: spacing.sm,
-  },
-  mutedSmall: {
-    ...typography.small,
-    color: colors.textMuted,
   },
 });

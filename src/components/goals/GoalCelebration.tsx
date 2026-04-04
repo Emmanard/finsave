@@ -1,5 +1,12 @@
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Animated,
+  Easing,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 
@@ -8,18 +15,22 @@ interface GoalCelebrationProps {
   onDismiss: () => void;
 }
 
-const DOTS = 20;
-
 export function GoalCelebration({ visible, onDismiss }: GoalCelebrationProps) {
-  const scales = useRef(Array.from({ length: DOTS }, () => new Animated.Value(0))).current;
-  const opacities = useRef(Array.from({ length: DOTS }, () => new Animated.Value(0))).current;
+  const scaleAnims = useRef(
+    Array.from({ length: 20 }, () => new Animated.Value(0)),
+  ).current;
+  const opacityAnims = useRef(
+    Array.from({ length: 20 }, () => new Animated.Value(0)),
+  ).current;
 
   useEffect(() => {
     if (!visible) {
+      scaleAnims.forEach((v) => v.setValue(0));
+      opacityAnims.forEach((v) => v.setValue(0));
       return;
     }
-    const animations = scales.map((s, i) =>
-      Animated.timing(s, {
+    const scaleAnimations = scaleAnims.map((v, i) =>
+      Animated.timing(v, {
         toValue: 1,
         duration: 900,
         delay: i * 12,
@@ -27,63 +38,55 @@ export function GoalCelebration({ visible, onDismiss }: GoalCelebrationProps) {
         useNativeDriver: true,
       }),
     );
-    const fades = opacities.map((o, i) =>
-      Animated.timing(o, {
+    const opacityAnimations = opacityAnims.map((v, i) =>
+      Animated.timing(v, {
         toValue: 1,
         duration: 250,
         delay: i * 12,
         useNativeDriver: true,
       }),
     );
-    Animated.parallel([...animations, ...fades]).start();
-  }, [visible, scales, opacities]);
+    Animated.parallel([...scaleAnimations, ...opacityAnimations]).start();
+  }, [visible, scaleAnims, opacityAnims]);
 
   if (!visible) {
     return null;
   }
 
   return (
-    <Pressable accessibilityRole="button" onPress={onDismiss} style={styles.overlay}>
-      <View style={styles.center}>
-        {scales.map((s, i) => {
-          const hue = (i * 37) % 360;
-          const left = `${(i * 17) % 100}%` as `${number}%`;
-          const top = `${(i * 23) % 100}%` as `${number}%`;
-          return (
-            <Animated.View
-              key={i}
-              style={[
-                styles.dot,
-                {
-                  backgroundColor: `hsl(${hue}, 85%, 60%)`,
-                  left,
-                  top,
-                  opacity: opacities[i],
-                  transform: [{ scale: s }],
-                },
-              ]}
-            />
-          );
-        })}
-        <Text style={[typography.h2, styles.title]}>Goal Achieved! 🎉</Text>
-      </View>
-    </Pressable>
+    <View style={styles.root} pointerEvents="box-none">
+      <Pressable style={styles.overlay} onPress={onDismiss}>
+        {scaleAnims.map((scaleVal, i) => (
+          <Animated.View
+            key={`dot-${i}`}
+            style={[
+              styles.dot,
+              {
+                left: `${(i * 17) % 100}%`,
+                top: `${(i * 23) % 100}%`,
+                backgroundColor: `hsl(${(i * 37) % 360}, 85%, 60%)`,
+                opacity: opacityAnims[i],
+                transform: [{ scale: scaleVal }],
+              },
+            ]}
+          />
+        ))}
+        <View style={styles.centerWrap} pointerEvents="none">
+          <Text style={styles.title}>Goal Achieved! 🎉</Text>
+        </View>
+      </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
+  root: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.65)',
-    alignItems: 'center',
-    justifyContent: 'center',
     zIndex: 50,
   },
-  center: {
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.72)',
   },
   dot: {
     position: 'absolute',
@@ -91,9 +94,15 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
   },
+  centerWrap: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
   title: {
+    ...typography.h2,
     color: colors.white,
     textAlign: 'center',
-    paddingHorizontal: 24,
   },
 });

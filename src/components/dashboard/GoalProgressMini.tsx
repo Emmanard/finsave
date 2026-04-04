@@ -39,6 +39,8 @@ function barColor(status: GoalProgress['status']): string {
       return colors.warning;
     case 'over-budget':
       return colors.danger;
+    case 'no-data':
+      return colors.textDisabled;
     default:
       return colors.primary;
   }
@@ -125,7 +127,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorder,
   },
   promptText: {
+    ...typography.body,
     color: colors.textMuted,
-    fontWeight: '600',
   },
 });

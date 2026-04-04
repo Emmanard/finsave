@@ -217,6 +217,10 @@ export async function deleteGoal(db: LegacyDatabase, id: number): Promise<void> 
   await execWrite(db, `DELETE FROM goals WHERE id = ?`, [id]);
 }
 
+export async function deleteGoalByMonth(db: LegacyDatabase, month: string): Promise<void> {
+  await execWrite(db, `DELETE FROM goals WHERE month = ?`, [month]);
+}
+
 export async function upsertGoalForMonth(db: LegacyDatabase, input: GoalInput): Promise<number> {
   const existing = await getGoalByMonth(db, input.month);
   if (existing) {
