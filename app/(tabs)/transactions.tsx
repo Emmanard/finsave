@@ -13,6 +13,7 @@ import {
   Alert,
   FlatList,
   Platform,
+  Pressable,
   RefreshControl,
   StyleSheet,
   Text,
@@ -20,12 +21,13 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { TransactionFilter, type FilterKey } from '../../src/components/transactions/TransactionFilter';
 import { TransactionItem } from '../../src/components/transactions/TransactionItem';
 import { ScreenHeader } from '../../src/components/ui/ScreenHeader';
 import { useTransactionStore } from '../../src/stores/transactionStore';
 import { colors } from '../../src/theme/colors';
-import { spacing, TAB_BAR_HEIGHT } from '../../src/theme/spacing';
+import { radius, spacing, TAB_BAR_HEIGHT } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
 import { useTransactions } from '../../src/hooks/useTransactions';
 import type { Transaction } from '../../src/types';
@@ -79,6 +81,7 @@ export default function TransactionsScreen() {
   const removeTransaction = useTransactionStore((s) => s.remove);
   const isLoading = useTransactionStore((s) => s.isLoading);
   const error = useTransactionStore((s) => s.error);
+  const hasAnyTransactions = useTransactionStore((s) => s.transactions.length > 0);
   const { filtered } = useTransactions();
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<FilterKey>('all');
@@ -156,6 +159,18 @@ export default function TransactionsScreen() {
 
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Add transaction"
+        onPress={() => router.push('/transaction/add')}
+        style={({ pressed }) => [
+          styles.fab,
+          { bottom: TAB_BAR_HEIGHT + insets.bottom + spacing.md },
+          pressed && { opacity: 0.9 },
+        ]}
+      >
+        <Ionicons name="add" size={28} color={colors.white} />
+      </Pressable>
       <FlatList
         data={rows}
         keyExtractor={(item, index) =>
@@ -208,7 +223,24 @@ export default function TransactionsScreen() {
         }}
         ListEmptyComponent={
           listEmpty && !isLoading ? (
-            <Text style={styles.empty}>No matching transactions.</Text>
+            hasAnyTransactions ? (
+              <Text style={styles.empty}>No matching transactions.</Text>
+            ) : (
+              <View style={styles.emptyBlock}>
+                <Ionicons name="receipt-outline" size={48} color={colors.textMuted} />
+                <Text style={styles.emptyTitle}>No transactions yet</Text>
+                <Text style={styles.emptySubtitle}>
+                  Track income and expenses as you go. Tap + to add your first entry.
+                </Text>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => router.push('/transaction/add')}
+                  style={({ pressed }) => [styles.emptyCta, pressed && styles.emptyCtaPressed]}
+                >
+                  <Text style={styles.emptyCtaText}>Add transaction</Text>
+                </Pressable>
+              </View>
+            )
           ) : null
         }
         ListFooterComponent={isLoading ? <ActivityIndicator color={colors.primary} /> : null}
@@ -241,11 +273,58 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     marginBottom: spacing.xs,
   },
+  fab: {
+    position: 'absolute',
+    right: spacing.md,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    zIndex: 2,
+  },
   empty: {
     ...typography.body,
     color: colors.textMuted,
     textAlign: 'center',
     marginTop: spacing.xl,
+  },
+  emptyBlock: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
+  },
+  emptyTitle: {
+    ...typography.h3,
+    color: colors.text,
+    marginTop: spacing.md,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    ...typography.body,
+    color: colors.textMuted,
+    textAlign: 'center',
+    marginTop: spacing.sm,
+    maxWidth: 300,
+    lineHeight: 22,
+  },
+  emptyCta: {
+    marginTop: spacing.lg,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.md,
+    backgroundColor: colors.primary,
+  },
+  emptyCtaPressed: {
+    opacity: 0.9,
+  },
+  emptyCtaText: {
+    ...typography.body,
+    color: colors.white,
+    fontWeight: '600',
   },
   inlineError: {
     ...typography.small,

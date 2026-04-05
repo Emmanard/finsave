@@ -1,4 +1,4 @@
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
 import type { Category } from '../../types';
 import { colors } from '../../theme/colors';
@@ -18,12 +18,26 @@ interface CategoryBreakdownProps {
   maxHeight?: number;
 }
 
+function formatCenterTotal(amount: number): string {
+  if (amount >= 100000) {
+    return `₹${(amount / 1000).toFixed(0)}k`;
+  }
+  if (amount >= 10000) {
+    return `₹${Math.round(amount / 1000)}k`;
+  }
+  return formatCurrency(amount);
+}
+
 export function CategoryBreakdown({
   rows,
   monthTotal,
   maxHeight = 220,
 }: CategoryBreakdownProps) {
-  const width = Dimensions.get('window').width - spacing.md * 2;
+  const { width: screenWidth } = useWindowDimensions();
+  const fullWidth = screenWidth - spacing.md * 2;
+  const radius = Math.min(90, fullWidth / 2 - 24);
+  const innerRadius = 55;
+
   const pieData = rows.map((r) => ({
     value: r.total,
     color: r.category.color,
@@ -31,25 +45,27 @@ export function CategoryBreakdown({
   }));
 
   if (pieData.length === 0) {
-    return <View style={{ height: maxHeight }} />;
+    return (
+      <View style={[styles.wrap, { maxHeight, height: maxHeight, marginBottom: spacing.xl }]} />
+    );
   }
 
   return (
-    <View style={[styles.wrap, { maxHeight }]}>
+    <View style={[styles.wrap, { maxHeight, marginBottom: spacing.xl }]}>
       <PieChart
         data={pieData}
         donut
         showText={false}
-        radius={Math.min(90, width / 2 - 16)}
-        innerRadius={55}
+        radius={radius}
+        innerRadius={innerRadius}
         innerCircleColor={colors.background}
         centerLabelComponent={() => (
           <View style={styles.centerLabel}>
             <Text style={[typography.small, styles.centerMuted]} numberOfLines={1}>
               Total
             </Text>
-            <Text style={[typography.h3, styles.centerAmount]} numberOfLines={1}>
-              {formatCurrency(monthTotal)}
+            <Text style={[typography.h3, styles.centerAmount]} numberOfLines={1} adjustsFontSizeToFit>
+              {formatCenterTotal(monthTotal)}
             </Text>
           </View>
         )}
@@ -58,7 +74,7 @@ export function CategoryBreakdown({
         {rows.map((r) => (
           <View key={r.category.id} style={styles.legendRow}>
             <View style={[styles.dot, { backgroundColor: r.category.color }]} />
-            <Text style={[typography.small, styles.legendName]} numberOfLines={1}>
+            <Text style={[typography.small, styles.legendName]} numberOfLines={2}>
               {r.category.label}
             </Text>
             <Text style={[typography.small, styles.legendAmt]} numberOfLines={1}>
@@ -75,12 +91,13 @@ const styles = StyleSheet.create({
   wrap: {
     width: '100%',
     alignItems: 'center',
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   centerLabel: {
     alignItems: 'center',
     justifyContent: 'center',
-    maxWidth: 120,
+    maxWidth: 160,
+    paddingHorizontal: spacing.xs,
   },
   centerMuted: {
     color: colors.textMuted,
@@ -91,7 +108,7 @@ const styles = StyleSheet.create({
   },
   legend: {
     width: '100%',
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
   legendRow: {
     flexDirection: 'row',
@@ -109,6 +126,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   legendAmt: {
+    flexShrink: 0,
     color: colors.textMuted,
   },
 });

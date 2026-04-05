@@ -13,6 +13,7 @@ interface TransactionState {
   update: (id: number, input: Partial<TransactionInput>) => Promise<void>;
   updateTransaction: (id: number, input: Partial<TransactionInput>) => Promise<void>;
   remove: (id: number) => Promise<void>;
+  clearAll: () => Promise<void>;
 }
 
 export const useTransactionStore = create<TransactionState>((set, get) => ({
@@ -66,6 +67,17 @@ export const useTransactionStore = create<TransactionState>((set, get) => ({
       await get().fetchAll();
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to delete transaction';
+      set({ error: message, isLoading: false });
+    }
+  },
+  clearAll: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const db = getDatabase();
+      await queries.deleteAllTransactions(db);
+      await get().fetchAll();
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to clear transactions';
       set({ error: message, isLoading: false });
     }
   },

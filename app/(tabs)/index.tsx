@@ -47,6 +47,8 @@ export default function HomeScreen() {
 
   const recentThree = useMemo(() => recentFive().slice(0, 3), [recentFive]);
 
+  const recentTightLayout = recentThree.length < 3;
+
   const goal = currentMonthGoal(goals);
   const progress = goal ? goalProgress(goal) : null;
 
@@ -102,19 +104,30 @@ export default function HomeScreen() {
           )}
         </View>
 
-        <View style={styles.section}>
-          <Text style={[typography.h3, styles.sectionTitle]}>This month&apos;s spending</Text>
+        <View
+          style={[styles.spendingSection, recentTightLayout && styles.spendingSectionTight]}
+        >
+          <Text style={[typography.h3, styles.spendingHeading]}>This month&apos;s spending</Text>
           <SpendingChart data={expenseByCat} maxHeight={200} />
-          <View style={styles.recent}>
-            {recentThree.map((t) => (
-              <TransactionItem
-                key={t.id}
-                transaction={t}
-                onPress={() => router.push(`/transaction/${t.id}`)}
-                onLongPress={() => {}}
-              />
-            ))}
-          </View>
+          {recentThree.length === 0 ? (
+            <View style={styles.recentEmpty}>
+              <Ionicons name="receipt-outline" size={28} color={colors.textMuted} />
+              <Text style={[typography.small, styles.recentEmptyText]}>
+                No recent transactions. Tap + to add one.
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.recent}>
+              {recentThree.map((t) => (
+                <TransactionItem
+                  key={t.id}
+                  transaction={t}
+                  onPress={() => router.push(`/transaction/${t.id}`)}
+                  onLongPress={() => {}}
+                />
+              ))}
+            </View>
+          )}
         </View>
       </ScrollView>
 
@@ -176,13 +189,33 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     gap: spacing.sm,
   },
-  sectionTitle: {
+  sectionTight: {
+    marginBottom: spacing.md,
+    gap: spacing.xs,
+  },
+  spendingSection: {
+    marginBottom: spacing.lg,
+    gap: spacing.md,
+  },
+  spendingSectionTight: {
+    marginBottom: spacing.md,
+    gap: spacing.sm,
+  },
+  spendingHeading: {
     color: colors.text,
-    marginBottom: spacing.sm,
   },
   recent: {
-    marginTop: spacing.md,
     gap: spacing.xs,
+  },
+  recentEmpty: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    gap: spacing.sm,
+  },
+  recentEmptyText: {
+    color: colors.textMuted,
+    textAlign: 'center',
+    maxWidth: 260,
   },
   fab: {
     position: 'absolute',

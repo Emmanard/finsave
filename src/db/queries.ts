@@ -158,6 +158,10 @@ export async function deleteTransaction(db: LegacyDatabase, id: number): Promise
   await execWrite(db, `DELETE FROM transactions WHERE id = ?`, [id]);
 }
 
+export async function deleteAllTransactions(db: LegacyDatabase): Promise<void> {
+  await execWrite(db, `DELETE FROM transactions`, []);
+}
+
 export async function getAllGoals(db: LegacyDatabase): Promise<Goal[]> {
   const rs = await execRead(
     db,

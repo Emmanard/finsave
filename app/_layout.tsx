@@ -9,7 +9,6 @@ import { useProfileStore } from '../src/stores/profileStore';
 import { useTransactionStore } from '../src/stores/transactionStore';
 import { colors } from '../src/theme/colors';
 import { typography } from '../src/theme/typography';
-import { seedIfNeeded } from '../src/utils/seed';
 
 export default function RootLayout() {
   const [phase, setPhase] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -23,7 +22,6 @@ export default function RootLayout() {
     (async () => {
       try {
         await openDatabaseAndMigrate();
-        await seedIfNeeded();
         await loadProfile();
         await fetchTransactions();
         await fetchGoals();

@@ -1,28 +1,28 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { format } from 'date-fns';
+import { format, subMonths } from 'date-fns';
 import { getDatabase } from '../db/database';
 import * as queries from '../db/queries';
 import type { GoalInput, TransactionInput } from '../types';
-
-const SEED_KEY = 'finsave_seeded';
 
 function ymd(year: number, month: number, day: number): string {
   return format(new Date(year, month - 1, day), 'yyyy-MM-dd');
 }
 
-export async function seedIfNeeded(): Promise<void> {
-  const flagged = await AsyncStorage.getItem(SEED_KEY);
-  if (flagged === 'true') {
-    return;
+/** Current month plus the two prior calendar months (3 total). */
+function lastThreeMonthContexts(): { y: number; m: number; monthStr: string }[] {
+  const out: { y: number; m: number; monthStr: string }[] = [];
+  for (let i = 0; i < 3; i++) {
+    const d = subMonths(new Date(), i);
+    out.push({
+      y: d.getFullYear(),
+      m: d.getMonth() + 1,
+      monthStr: format(d, 'yyyy-MM'),
+    });
   }
+  return out;
+}
 
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = now.getMonth() + 1;
-  const monthStr = format(new Date(y, m - 1, 1), 'yyyy-MM');
-  const db = getDatabase();
-
-  const txs: TransactionInput[] = [
+export function buildDemoTransactions(y: number, m: number): TransactionInput[] {
+  return [
     { amount: 85000, type: 'income', category: 'salary', date: ymd(y, m, 1), notes: '' },
     { amount: 18000, type: 'income', category: 'freelance', date: ymd(y, m, 5), notes: '' },
     { amount: 650, type: 'expense', category: 'food', date: ymd(y, m, 2), notes: '' },
@@ -39,17 +39,37 @@ export async function seedIfNeeded(): Promise<void> {
     { amount: 950, type: 'expense', category: 'health', date: ymd(y, m, 9), notes: '' },
     { amount: 999, type: 'expense', category: 'entertainment', date: ymd(y, m, 12), notes: '' },
   ];
+}
 
-  for (const t of txs) {
-    await queries.insertTransaction(db, t);
-  }
-
-  const goal: GoalInput = {
+export function buildDemoGoal(monthStr: string): GoalInput {
+  return {
     title: 'Monthly Savings',
     target: 30000,
     month: monthStr,
   };
-  await queries.insertGoal(db, goal);
+}
 
-  await AsyncStorage.setItem(SEED_KEY, 'true');
+async function insertDemoPayload(
+  db: Parameters<typeof queries.insertTransaction>[0],
+): Promise<void> {
+  const months = lastThreeMonthContexts();
+  for (const { y, m } of months) {
+    const txs = buildDemoTransactions(y, m);
+    for (const t of txs) {
+      await queries.insertTransaction(db, t);
+    }
+  }
+  for (const { monthStr } of months) {
+    await queries.upsertGoalForMonth(db, buildDemoGoal(monthStr));
+  }
+}
+
+/**
+ * Dev / reviewer helper: loads sample transactions across the last 3 months + a savings goal per month.
+ * New installs start with an empty ledger; this is not run automatically.
+ */
+export async function restoreDemoData(): Promise<void> {
+  const db = getDatabase();
+  await queries.deleteAllTransactions(db);
+  await insertDemoPayload(db);
 }

@@ -12,7 +12,7 @@ import { colors } from '../../theme/colors';
 import { radius, spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
 
-interface InputFieldProps extends Omit<TextInputProps, 'style'> {
+interface InputFieldProps extends TextInputProps {
   label?: string;
   error?: string;
   containerStyle?: StyleProp<ViewStyle>;
@@ -22,6 +22,7 @@ export function InputField({
   label,
   error,
   containerStyle,
+  style,
   onFocus,
   onBlur,
   ...rest
@@ -49,6 +50,7 @@ export function InputField({
           typography.body,
           focused && styles.inputFocused,
           error ? styles.inputError : null,
+          style,
         ]}
       />
       {error ? <Text style={styles.errorText}>{error}</Text> : null}

@@ -81,20 +81,17 @@ function computeGoalProgress(goal: Goal, all: Transaction[]): GoalProgress {
   };
 }
 
-function streakCountFn(goals: Goal[]): number {
-  const monthSet = new Set(goals.map((g) => g.month));
+/** Consecutive months (from current backward) where this month's goal was actually achieved (savings ≥ target). */
+function streakCountFn(goals: Goal[], all: Transaction[]): number {
   const now = new Date();
-  const currentKey = format(now, 'yyyy-MM');
-  if (!monthSet.has(currentKey)) {
-    return 0;
-  }
   let streak = 0;
   let cursor = now;
   for (;;) {
     const key = format(cursor, 'yyyy-MM');
-    if (!monthSet.has(key)) {
-      break;
-    }
+    const goalForMonth = goals.find((g) => g.month === key);
+    if (!goalForMonth) break;
+    const progress = computeGoalProgress(goalForMonth, all);
+    if (progress.status !== 'achieved') break;
     streak += 1;
     cursor = subMonths(cursor, 1);
   }
@@ -115,7 +112,7 @@ export function useGoals() {
     };
 
     const streakCount = (goals: Goal[]): number => {
-      return streakCountFn(goals);
+      return streakCountFn(goals, transactions);
     };
 
     return {
