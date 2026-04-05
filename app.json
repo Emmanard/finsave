@@ -22,9 +22,19 @@
       },
       "package": "com.finsave.app"
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router"
+    ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "b7f8b3f9-8d8c-4873-ab9c-c0a70d4aae39"
+      }
     }
   }
 }
