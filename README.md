@@ -10,7 +10,7 @@
 
 | Home | Transactions | Goals | Insights |
 |------|-------------|-------|---------|
-| ![Home](assets/HOME-SCREENSHOT.png) | ![Transactions](assets/Transaction-screenshot.png) | ![Goals](assets/Goals-screenshot.png) | ![Insights](assets/Insights-screenshot.png) |
+| ![Home](assets/HOME-SCREENSHOT.png) | ![Transactions](assets/Transaction-screenshot.png) | ![Goals](assets/Goals-screenshot.png) | ![Insights](assets/Insights-screenshot.png) | [Profile](assets/profile-screenshot.png)
 
 ---
 
