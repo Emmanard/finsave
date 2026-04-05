@@ -8,9 +8,9 @@
 
 ## Screenshots
 
-| Home | Transactions | Goals | Insights |
-|------|-------------|-------|---------|
-| ![Home](assets/HOME-SCREENSHOT.png) | ![Transactions](assets/Transaction-screenshot.png) | ![Goals](assets/Goals-screenshot.png) | ![Insights](assets/Insights-screenshot.png) | [Profile](assets/profile-screenshot.png)
+| Home | Transactions | Goals | Insights | Profile |
+|------|-------------|-------|---------|---------|
+| ![Home](assets/HOME-SCREENSHOT.png) | ![Transactions](assets/Transaction-screenshot.png) | ![Goals](assets/Goals-screenshot.png) | ![Insights](assets/Insights-screenshot.png) | ![Profile](assets/profile-screenshot.png) |
 
 ---
 
