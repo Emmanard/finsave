@@ -32,7 +32,10 @@ export default function HomeScreen() {
   const displayName = useProfileStore((s) => s.displayName);
   const goals = useGoalStore((s) => s.goals);
   const { currentMonthGoal, goalProgress } = useGoals();
-  const { totalIncome, totalExpenses, balance, byCategory, recentFive } = useTransactions();
+  const { totalIncome, totalExpenses, balance, byCategory, recentFive, weeklySpendingComparison } =
+    useTransactions();
+
+  const weekComparison = weeklySpendingComparison();
 
   const monthKey = format(new Date(), 'yyyy-MM');
 
@@ -109,6 +112,11 @@ export default function HomeScreen() {
         >
           <Text style={[typography.h3, styles.spendingHeading]}>This month&apos;s spending</Text>
           <SpendingChart data={expenseByCat} maxHeight={200} />
+          {weekComparison ? (
+            <Text style={[typography.small, styles.weekComparison]}>
+              {weekComparison}
+            </Text>
+          ) : null}
           {recentThree.length === 0 ? (
             <View style={styles.recentEmpty}>
               <Ionicons name="receipt-outline" size={28} color={colors.textMuted} />
@@ -204,6 +212,11 @@ const styles = StyleSheet.create({
   },
   spendingHeading: {
     color: colors.text,
+  },
+  weekComparison: {
+    color: colors.textMuted,
+    textAlign: 'center',
+    paddingHorizontal: spacing.sm,
   },
   recent: {
     gap: spacing.xs,

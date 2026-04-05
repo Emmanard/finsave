@@ -1,9 +1,14 @@
 import {
+  endOfDay,
+  endOfWeek,
   format,
   isToday,
   isYesterday,
+  isWithinInterval,
   parseISO,
   startOfDay,
+  startOfWeek,
+  subWeeks,
 } from 'date-fns';
 import { useMemo } from 'react';
 import { useTransactionStore } from '../stores/transactionStore';
@@ -130,6 +135,51 @@ export function useTransactions() {
     return groups;
   };
 
+  const weeklySpendingComparison = (): string => {
+    const now = new Date();
+    const currentWeekStart = startOfWeek(now, { weekStartsOn: 1 });
+    const currentInterval = {
+      start: startOfDay(currentWeekStart),
+      end: endOfDay(now),
+    };
+
+    const priorWeekRef = subWeeks(now, 1);
+    const previousInterval = {
+      start: startOfDay(startOfWeek(priorWeekRef, { weekStartsOn: 1 })),
+      end: endOfDay(endOfWeek(priorWeekRef, { weekStartsOn: 1 })),
+    };
+
+    let current = 0;
+    let previous = 0;
+    for (const t of transactions) {
+      if (t.type !== 'expense') {
+        continue;
+      }
+      const d = parseISO(t.date);
+      if (isWithinInterval(d, currentInterval)) {
+        current += t.amount;
+      } else if (isWithinInterval(d, previousInterval)) {
+        previous += t.amount;
+      }
+    }
+
+    if (current === 0 && previous === 0) {
+      return '';
+    }
+    if (previous === 0 && current > 0) {
+      return 'First spending logged this week.';
+    }
+    if (current < previous) {
+      const pct = Math.round(Math.abs((current - previous) / previous) * 100);
+      return `You spent ${pct}% less than last week.`;
+    }
+    if (current > previous) {
+      const pct = Math.round(Math.abs((current - previous) / previous) * 100);
+      return `You spent ${pct}% more than last week.`;
+    }
+    return 'Same spending as last week.';
+  };
+
   return useMemo(
     () => ({
       totalIncome,
@@ -139,6 +189,7 @@ export function useTransactions() {
       recentFive,
       filtered,
       groupedByDate,
+      weeklySpendingComparison,
     }),
     [transactions],
   );

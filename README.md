@@ -8,18 +8,15 @@
 
 ## Screenshots
 
-> Add screenshots of: Home Dashboard, Transactions, Goals, Insights screens
-> (Replace these placeholders with actual simulator screenshots before submission)
-
 | Home | Transactions | Goals | Insights |
 |------|-------------|-------|---------|
-| _screenshot_ | _screenshot_ | _screenshot_ | _screenshot_ |
+| ![Home](assets/HOME-SCREENSHOT.png) | ![Transactions](assets/Transaction-screenshot.png) | ![Goals](assets/Goals-screenshot.png) | ![Insights](assets/Insights-screenshot.png) |
 
 ---
 
 ## Features
 
-- **Home Dashboard** — Balance, income and expense summary cards with live data, spending chart by category, recent transactions, savings goal progress at a glance
+- **Home Dashboard** — Balance, income and expense summary cards with live data, spending chart by category, weekly spending comparison insight, recent transactions, and savings goal progress at a glance
 - **Transaction Tracking** — Add, edit, delete transactions with category, amount, date and notes. Filter by type, search by text, grouped by date
 - **Monthly Savings Goal** — Set a savings target, track progress with an animated bar, earn streak badges for consecutive months, celebrate achieving your goal
 - **Insights** — Top spending category, week-on-week comparison, 6-month income vs expenses trend, spending breakdown by category, auto-generated insight sentences
@@ -61,7 +58,7 @@
 
 ```bash
 # 1. Clone the repository
-git clone 
+git clone <https://github.com/Emmanard/finsave.git>
 cd finsave
 
 # 2. Use correct Node version
