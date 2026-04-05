@@ -1,7 +1,15 @@
+import * as Haptics from 'expo-haptics';
 import { parseISO } from 'date-fns';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { TransactionEditor } from '../../src/components/transactions/TransactionEditor';
 import { useTransactionStore } from '../../src/stores/transactionStore';
@@ -14,7 +22,9 @@ export default function EditTransactionScreen() {
   const id = Number.parseInt(idParam ?? '', 10);
   const transactions = useTransactionStore((s) => s.transactions);
   const isLoading = useTransactionStore((s) => s.isLoading);
+  const storeError = useTransactionStore((s) => s.error);
   const updateTransaction = useTransactionStore((s) => s.updateTransaction);
+  const removeTransaction = useTransactionStore((s) => s.remove);
 
   const transaction = useMemo(
     () => (Number.isFinite(id) ? transactions.find((t) => t.id === id) : undefined),
@@ -52,6 +62,29 @@ export default function EditTransactionScreen() {
 
   const initialDate = parseISO(transaction.date);
 
+  const confirmDelete = () => {
+    Alert.alert(
+      'Delete transaction',
+      'This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            void (async () => {
+              await removeTransaction(transaction.id);
+              if (!useTransactionStore.getState().error) {
+                await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+                router.back();
+              }
+            })();
+          },
+        },
+      ],
+    );
+  };
+
   return (
     <TransactionEditor
       title="Edit Transaction"
@@ -61,6 +94,8 @@ export default function EditTransactionScreen() {
       initialNotes={transaction.notes}
       initialDate={initialDate}
       initialCategory={transaction.category}
+      storeError={storeError}
+      onDeletePress={confirmDelete}
       leading={
         <Pressable
           accessibilityRole="button"
@@ -74,7 +109,9 @@ export default function EditTransactionScreen() {
       trailing={<View />}
       onSubmit={async (payload) => {
         await updateTransaction(transaction.id, payload);
-        router.back();
+        if (!useTransactionStore.getState().error) {
+          router.back();
+        }
       }}
     />
   );

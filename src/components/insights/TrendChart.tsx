@@ -1,6 +1,6 @@
 import { format, parseISO } from 'date-fns';
 import { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import type { MonthlySummary } from '../../types';
 import { colors } from '../../theme/colors';
@@ -24,8 +24,7 @@ function monthLabelFromKey(monthYyyyMm: string): string {
 }
 
 export function TrendChart({ data, maxHeight = 220 }: TrendChartProps) {
-  const { width: screenWidth } = useWindowDimensions();
-  const innerWidth = screenWidth - spacing.md * 2;
+  const innerWidth = Dimensions.get('window').width - spacing.md * 2;
   const chartWidth = Math.max(data.length * 56, innerWidth);
 
   const { stackData, xAxisLabelTexts } = useMemo(() => {

@@ -44,6 +44,10 @@ export interface TransactionEditorProps {
   onSubmit: (payload: TransactionInput) => Promise<void>;
   leading: ReactNode;
   trailing: ReactNode;
+  /** Zustand transaction store error — shown in red below the header */
+  storeError?: string | null;
+  /** When set, renders a destructive bottom action (e.g. edit screen) */
+  onDeletePress?: () => void;
 }
 
 export function TransactionEditor({
@@ -57,6 +61,8 @@ export function TransactionEditor({
   onSubmit,
   leading,
   trailing,
+  storeError,
+  onDeletePress,
 }: TransactionEditorProps) {
   const insets = useSafeAreaInsets();
   const [txType, setTxType] = useState<'income' | 'expense'>(initialType);
@@ -143,10 +149,12 @@ export function TransactionEditor({
         </View>
 
         {formError ? <Text style={styles.error}>{formError}</Text> : null}
+        {storeError ? <Text style={styles.error}>{storeError}</Text> : null}
 
         <ScrollView
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
           <Text style={styles.fieldLabel}>Type</Text>
@@ -199,7 +207,9 @@ export function TransactionEditor({
             onPress={openDatePress}
             style={styles.dateRow}
           >
-            <Text style={[typography.body, styles.dateText]}>{format(date, 'EEEE, d MMM yyyy')}</Text>
+            <Text style={[typography.body, styles.dateText]} numberOfLines={1}>
+              {format(date, 'EEEE, d MMM yyyy')}
+            </Text>
             <Ionicons name="calendar-outline" size={22} color={colors.primary} />
           </Pressable>
           {showDatePicker ? (
@@ -247,6 +257,18 @@ export function TransactionEditor({
           >
             <Text style={styles.saveBtnText}>{saving ? 'Saving…' : submitLabel}</Text>
           </Pressable>
+
+          {onDeletePress ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Delete transaction"
+              disabled={saving}
+              onPress={onDeletePress}
+              style={({ pressed }) => [styles.deleteBtn, pressed && styles.deleteBtnPressed]}
+            >
+              <Text style={styles.deleteBtnText}>Delete transaction</Text>
+            </Pressable>
+          ) : null}
         </ScrollView>
       </View>
 
@@ -269,6 +291,8 @@ export function TransactionEditor({
               keyExtractor={(item) => item.id}
               numColumns={3}
               columnWrapperStyle={styles.catRow}
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
               renderItem={({ item }) => {
                 const selected = item.id === categoryId;
                 return (
@@ -366,6 +390,8 @@ const styles = StyleSheet.create({
   },
   input: {
     ...typography.body,
+    alignSelf: 'stretch',
+    width: '100%',
     backgroundColor: colors.surface,
     borderRadius: 12,
     borderWidth: 1,
@@ -390,6 +416,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   dateText: {
+    flex: 1,
+    minWidth: 0,
+    marginRight: spacing.sm,
     color: colors.text,
   },
   categoryPick: {
@@ -426,12 +455,30 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontWeight: '700',
   },
+  deleteBtn: {
+    marginTop: spacing.md,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.danger,
+  },
+  deleteBtnPressed: {
+    opacity: 0.85,
+  },
+  deleteBtnText: {
+    ...typography.body,
+    color: colors.danger,
+    fontWeight: '700',
+  },
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
   },
   modalSheet: {
+    alignSelf: 'stretch',
+    width: '100%',
     backgroundColor: colors.background,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,

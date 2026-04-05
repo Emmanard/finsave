@@ -5,11 +5,11 @@ import {
   parseISO,
   startOfDay,
 } from 'date-fns';
+import * as Haptics from 'expo-haptics';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActionSheetIOS,
-  ActivityIndicator,
   Alert,
   FlatList,
   Platform,
@@ -195,7 +195,13 @@ export default function TransactionsScreen() {
               placeholderTextColor={colors.textMuted}
               style={styles.search}
             />
-            <TransactionFilter active={filter} onChange={setFilter} />
+            <TransactionFilter
+              active={filter}
+              onChange={(key) => {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setFilter(key);
+              }}
+            />
             {error ? <Text style={styles.inlineError}>{error}</Text> : null}
           </View>
         }
@@ -205,6 +211,7 @@ export default function TransactionsScreen() {
           flexGrow: 1,
         }}
         showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => {
           if (item.kind === 'header') {
             return (
@@ -243,7 +250,6 @@ export default function TransactionsScreen() {
             )
           ) : null
         }
-        ListFooterComponent={isLoading ? <ActivityIndicator color={colors.primary} /> : null}
       />
     </View>
   );
@@ -259,6 +265,8 @@ const styles = StyleSheet.create({
   },
   search: {
     ...typography.body,
+    alignSelf: 'stretch',
+    width: '100%',
     backgroundColor: colors.surface,
     borderRadius: 12,
     borderWidth: 1,

@@ -1,7 +1,9 @@
+import * as Haptics from 'expo-haptics';
 import { format } from 'date-fns';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Modal,
   Pressable,
@@ -33,6 +35,7 @@ export default function GoalsScreen() {
   const upsert = useGoalStore((s) => s.upsert);
   const deleteGoal = useGoalStore((s) => s.deleteGoal);
   const error = useGoalStore((s) => s.error);
+  const isLoading = useGoalStore((s) => s.isLoading);
   const { currentMonthGoal, goalProgress, streakCount } = useGoals();
 
   const celebratedRef = useRef(false);
@@ -95,7 +98,10 @@ export default function GoalsScreen() {
       target: parsed,
       month: format(new Date(), 'yyyy-MM'),
     });
-    setShowForm(false);
+    if (!useGoalStore.getState().error) {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setShowForm(false);
+    }
   };
 
   const onConfirmDelete = () => {
@@ -131,6 +137,11 @@ export default function GoalsScreen() {
 
   return (
     <View style={styles.root}>
+      {isLoading ? (
+        <View style={styles.loadingOverlay} pointerEvents="box-none">
+          <ActivityIndicator color={colors.primary} size="large" />
+        </View>
+      ) : null}
       <ScrollView
         showsVerticalScrollIndicator={false}
         showsHorizontalScrollIndicator={false}
@@ -196,14 +207,19 @@ export default function GoalsScreen() {
                 <Ionicons name="close" size={28} color={colors.text} />
               </Pressable>
             </View>
-            <InputField label="Goal Title" value={formTitle} onChangeText={setFormTitle} />
+            <InputField
+              label="Goal Title"
+              value={formTitle}
+              onChangeText={setFormTitle}
+              containerStyle={styles.fieldFullWidth}
+            />
             <InputField
               label="Target Amount"
               value={formAmount}
               onChangeText={setFormAmount}
               keyboardType="decimal-pad"
               placeholder="₹0"
-              containerStyle={styles.fieldGap}
+              containerStyle={[styles.fieldFullWidth, styles.fieldGap]}
             />
             {formError ? <Text style={styles.formError}>{formError}</Text> : null}
             <Button label="Save Goal" onPress={() => void onSaveGoal()} style={styles.saveBtn} />
@@ -228,6 +244,13 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
   },
   scrollContent: {
     flexGrow: 1,
@@ -263,6 +286,10 @@ const styles = StyleSheet.create({
   sheetTitle: {
     color: colors.text,
     flex: 1,
+  },
+  fieldFullWidth: {
+    alignSelf: 'stretch',
+    width: '100%',
   },
   fieldGap: {
     marginTop: spacing.md,

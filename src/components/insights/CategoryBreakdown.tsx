@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
 import type { Category } from '../../types';
 import { colors } from '../../theme/colors';
@@ -33,8 +33,7 @@ export function CategoryBreakdown({
   monthTotal,
   maxHeight = 220,
 }: CategoryBreakdownProps) {
-  const { width: screenWidth } = useWindowDimensions();
-  const fullWidth = screenWidth - spacing.md * 2;
+  const fullWidth = Dimensions.get('window').width - spacing.md * 2;
   const radius = Math.min(90, fullWidth / 2 - 24);
   const innerRadius = 55;
 

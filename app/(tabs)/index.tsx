@@ -184,6 +184,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.sm,
     marginBottom: spacing.lg,
+    minWidth: 0,
   },
   section: {
     marginBottom: spacing.lg,

@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -11,6 +12,7 @@ const defaultExpenseCategory =
 
 export default function AddTransactionScreen() {
   const addTransaction = useTransactionStore((s) => s.addTransaction);
+  const storeError = useTransactionStore((s) => s.error);
 
   return (
     <TransactionEditor
@@ -21,6 +23,7 @@ export default function AddTransactionScreen() {
       initialNotes=""
       initialDate={new Date()}
       initialCategory={defaultExpenseCategory}
+      storeError={storeError}
       leading={<View />}
       trailing={
         <Pressable
@@ -34,7 +37,10 @@ export default function AddTransactionScreen() {
       }
       onSubmit={async (payload) => {
         await addTransaction(payload);
-        router.back();
+        if (!useTransactionStore.getState().error) {
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          router.back();
+        }
       }}
     />
   );

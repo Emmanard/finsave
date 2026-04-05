@@ -43,7 +43,11 @@ export function TransactionItem({ transaction, onPress, onLongPress }: Transacti
           {formatDisplayDate(transaction.date)}
         </Text>
       </View>
-      <Text style={[typography.body, styles.amount, { color: amountColor }]} numberOfLines={1}>
+      <Text
+        style={[typography.body, styles.amount, { color: amountColor }]}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+      >
         {transaction.type === 'expense' ? '−' : '+'}
         {formatCurrency(transaction.amount)}
       </Text>
@@ -84,5 +88,8 @@ const styles = StyleSheet.create({
   amount: {
     fontWeight: '700',
     marginLeft: spacing.sm,
+    flexShrink: 1,
+    minWidth: 0,
+    textAlign: 'right',
   },
 });

@@ -21,7 +21,11 @@ export function SummaryCard({
       <Text style={[typography.small, styles.label]} numberOfLines={1}>
         {label}
       </Text>
-      <Text style={[typography.h2, styles.amount, { color: amountColor }]} numberOfLines={1}>
+      <Text
+        style={[typography.h2, styles.amount, { color: amountColor }]}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+      >
         {amount}
       </Text>
     </View>

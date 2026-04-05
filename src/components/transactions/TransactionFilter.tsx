@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
@@ -33,7 +32,6 @@ export function TransactionFilter({ active, onChange }: TransactionFilterProps) 
               key={opt.key}
               accessibilityRole="button"
               onPress={() => {
-                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 onChange(opt.key);
               }}
               style={[styles.chip, selected && styles.chipActive]}
